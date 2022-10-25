@@ -98,7 +98,10 @@ namespace Oktane.Controllers
         {
             var res = await _queueService.SaveHistoryQue(queueId, type, status);
             var current = await _gasStationService.currentFuelAmount(res.Id, type);
-            _queueService.UpdateFuelAmountWhenQueueUpdated(res.Id, current, type);
+            if (status)
+            {
+                _queueService.UpdateFuelAmountWhenQueueUpdated(res.Id, current, type);
+            }
             return new JsonResult(res.Que[0]);
         }
 
