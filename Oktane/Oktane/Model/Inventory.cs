@@ -15,7 +15,7 @@ namespace Oktane.Model
         [DisplayFormat(ConvertEmptyStringToNull = false)]
         public string? FuleType { get; set; }
         public string? StationId { get; set; }
-        public float Stock { get; set; } = 0;
+        public int Stock { get; set; } = 0;
         public double Price { get; set; } = 0.0;
         public bool IsStockOut { get; set; } = false;
         public string StockUpdateDateTime  { get; set; } = String.Empty;
