@@ -100,6 +100,22 @@ namespace Oktane.Controllers
             return new JsonResult(res);
         }
 
+        [HttpGet]
+        [Route("/GetQueueStatus")]
+        public async Task<JsonResult> GetQueueStatus(string stationId, string type)
+        {
+            var res = await _gasStationService.GetQueueStatus(stationId, type);
+            return res;
+        }
+
+        [HttpGet]
+        [Route("/GetStationByUserId")]
+        public async Task<JsonResult> GetStationByUserId(string userId)
+        {
+            var res = await _gasStationService.GetStationByUserId(userId);
+            return res;
+        }
+
     }
 
    

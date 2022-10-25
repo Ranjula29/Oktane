@@ -4,7 +4,6 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using Oktane.Model;
 using System.Net;
-using static MongoDB.Driver.WriteConcern;
 
 namespace Oktane.Services
 {
@@ -113,6 +112,35 @@ namespace Oktane.Services
             return (type == "Diesel") ? res.ToList()[0].TotalDiesel : res.ToList()[0].TotalPetrol;
         }
 
+
+        public async Task<JsonResult> GetQueueStatus(string stationId, string type)
+        {
+            var res = await GetAsync(stationId);
+            int[] results = new int[2];
+            if (type == "Diesel") {
+
+                var numberOfVehicles = res.TotalDiesel/20;
+                var quantity = res.TotalDiesel;
+                results[0] = numberOfVehicles;
+                results[1] = quantity;
+
+                return new JsonResult(results);
+
+            } else {
+                var numberOfVehicles = res.TotalPetrol/20;
+                var quantity = res.TotalPetrol;
+                results[0] = numberOfVehicles;
+                results[1] = quantity;
+
+                return new JsonResult(numberOfVehicles);
+            }
+        }
+
+        public async Task<JsonResult> GetStationByUserId(string userId)
+        {
+            var station = await _gasStation.FindAsync(c => c.OwnerId == userId);
+            return new JsonResult(station.ToList()[0]);
+        }
 
     }
 }
