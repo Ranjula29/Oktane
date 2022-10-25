@@ -1,7 +1,9 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Oktane.Model;
+using static MongoDB.Driver.WriteConcern;
 
 namespace Oktane.Services
 {
@@ -58,6 +60,29 @@ namespace Oktane.Services
 
         }
 
+        public async Task<GasStation> SaveHistoryQue(string queueId,string type, bool status)
+        {
+            GasStation gasStation = FilterStationByQueueId(queueId);
+            StationQue queue = gasStation.Que[gasStation.Que.Count - 1];
+            var StationObject = Builders<GasStation>.Filter.ElemMatch(t => t.Que, queue => queue.Id == queueId);
+            var pull = Builders<GasStation>.Update.PullFilter(t => t.Que, queue => queue.Id == queueId);
+            var result = await _gasStation.UpdateManyAsync(StationObject, pull);
+
+            if (status)
+            {
+                queue.ArrivalDateTime = DateTime.Now.ToString();
+                queue.Id = ObjectId.GenerateNewId().ToString();
+
+                var filter2 = Builders<GasStation>.Filter.Eq(a => a.Id, gasStation.Id);
+                var multiUpdate = Builders<GasStation>.Update.Push(u => u.HistoryQue, queue);
+                await _gasStation.UpdateOneAsync(filter2, multiUpdate);
+            }
+
+            GasStation newStation = FilterStationByQueueId(queue.Id);
+
+            return newStation;
+        }
+
         public GasStation FilterStationByOnTheWayQueueId(string queueId)
         {
             var station = Builders<GasStation>.Filter
@@ -78,6 +103,30 @@ namespace Oktane.Services
             var res = _gasStation.Find(station).ToList();
 
             return res[0];
+        }
+
+        public async void UpdateFuelAmountWhenQueueUpdated(string stationId,int fuelAmount, string type)
+        {
+            GasStation gasStation = new GasStation();
+            var GasStationFilter = Builders<GasStation>.Filter.Eq(a => a.Id, stationId);
+
+
+            if (type == "Diesel")
+            {
+                gasStation.TotalDiesel = (fuelAmount - 20);
+                var updateDefinition = Builders<GasStation>.Update
+                    .Set(u => u.TotalDiesel, gasStation.TotalDiesel);
+                var updatedResult = await _gasStation
+                    .UpdateOneAsync(GasStationFilter, updateDefinition);
+            }
+            else
+            {
+                gasStation.TotalPetrol = (fuelAmount - 20);
+                var updateDefinition = Builders<GasStation>.Update
+                    .Set(u => u.TotalPetrol, gasStation.TotalPetrol);
+                var updatedResult = await _gasStation
+                    .UpdateOneAsync(GasStationFilter, updateDefinition);
+            }
         }
 
 

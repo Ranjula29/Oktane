@@ -93,6 +93,16 @@ namespace Oktane.Controllers
         }
 
         [HttpPost]
+        [Route("/save/historyque")]
+        public async Task<JsonResult> SaveHistoryQue(string queueId, string type, bool status)
+        {
+            var res = await _queueService.SaveHistoryQue(queueId, type, status);
+            var current = await _gasStationService.currentFuelAmount(res.Id, type);
+            _queueService.UpdateFuelAmountWhenQueueUpdated(res.Id, current, type);
+            return new JsonResult(res.Que[0]);
+        }
+
+        [HttpPost]
         [Route("/save/fuel")]
         public async Task<JsonResult> SaveFuel(Inventory inventory)
         {
