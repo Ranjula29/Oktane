@@ -31,7 +31,7 @@ namespace Oktane.Controllers
         public async Task<List<GasStation>> Get() =>
         await _gasStationService.GetAsync();
 
-        [HttpGet("{id:length(24)}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<GasStation>> Get(string id)
         {
             var gas = await _gasStationService.GetAsync(id);
