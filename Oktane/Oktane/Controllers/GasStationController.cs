@@ -9,10 +9,15 @@ namespace Oktane.Controllers
     public class GasStationController : ControllerBase
     {
         private readonly GasStationService _gasStationService;
+        private readonly StationQueService _queueService;
 
 
-        public GasStationController(GasStationService gasStationService) =>
-        _gasStationService = gasStationService;
+        public GasStationController(GasStationService gasStationService, StationQueService queueService)
+        {
+            _gasStationService = gasStationService;
+            _queueService = queueService;
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> Post(GasStation gasStation)
@@ -81,11 +86,18 @@ namespace Oktane.Controllers
 
         [HttpPost]
         [Route("/save/que")]
-        public async Task<IActionResult> SaveQue(StationQue stationQue)
+        public async Task<JsonResult> SaveQue(string queueId)
         {
-            await _gasStationService.CreateQue(stationQue);
+            var res = await _queueService.CreateQue(queueId);
+            return new JsonResult(res);
+        }
 
-            return CreatedAtAction(nameof(Get), new { id = stationQue.Id }, stationQue);
+        [HttpPost]
+        [Route("/save/fuel")]
+        public async Task<JsonResult> SaveFuel(Inventory inventory)
+        {
+            var res = await _gasStationService.SaveFuel(inventory);
+            return new JsonResult(res);
         }
 
     }

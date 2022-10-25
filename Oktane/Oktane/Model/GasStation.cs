@@ -36,6 +36,10 @@ namespace Oktane.Model
         public List<StationQue> Que { get; set; } = new List<StationQue>();
         [JsonPropertyName("HistoryQue")]
         public List<StationQue> HistoryQue { get; set; } = new List<StationQue>();
+        [JsonPropertyName("TotalPetrol")]
+        public int TotalPetrol { get; set; } = 0;
+        [JsonPropertyName("TotalDiesel")]
+        public int TotalDiesel { get; set; } = 0;
 
 
     }

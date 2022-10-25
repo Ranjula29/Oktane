@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Oktane.Model;
 using System.Net;
@@ -42,6 +44,7 @@ namespace Oktane.Services
          public async Task CreateOntheWayQue(StationQue stationQue)
         {
             stationQue.OnTheWayDateTime = DateTime.Now.ToString();
+            stationQue.Id = ObjectId.GenerateNewId().ToString();
             var filter = Builders<GasStation>.Filter.Eq(a =>
             a.Id, stationQue.StationId);
             var multiUpdate = Builders<GasStation>.Update.Push(u => u.OnTheWayQue, stationQue);
@@ -59,7 +62,6 @@ namespace Oktane.Services
             var update = Builders<GasStation>.Update.PullFilter(ym => ym.OnTheWayQue, Builders<StationQue>.Filter.Where(nm => nm.UserId == stationQue.UserId));
             await _gasStation.UpdateOneAsync(filter, update);
 
-            stationQue.Id = 
 
             stationQue.ArrivalDateTime = DateTime.Now.ToString();
             var filter2 = Builders<GasStation>.Filter.Eq(a =>
@@ -67,6 +69,19 @@ namespace Oktane.Services
             var multiUpdate = Builders<GasStation>.Update.Push(u => u.Que, stationQue);
             await _gasStation.UpdateOneAsync(filter, multiUpdate);
 
+        }
+
+        public async Task<JsonResult> SaveFuel(Inventory inventory)
+        {
+            inventory.Id = ObjectId.GenerateNewId().ToString();
+
+            var Station = Builders<GasStation>.Filter.Eq(a => a.Id, inventory.StationId);
+            var Update = Builders<GasStation>.Update
+                .Push(u => u.Inventory, inventory);
+            var pushNotificationsResult = await _gasStation.UpdateOneAsync(Station, Update);
+            var results = _gasStation.Find(i => i.Id == inventory.StationId).ToList();
+
+            return new JsonResult(results[0]);
         }
 
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Oktane.Model;
 
@@ -26,6 +27,7 @@ namespace Oktane.Services
         public async Task CreateOntheWayQue(StationQue stationQue)
         {
             stationQue.OnTheWayDateTime = DateTime.Now.ToString();
+            stationQue.Id = ObjectId.GenerateNewId().ToString();
             var filter = Builders<GasStation>.Filter.Eq(a =>
             a.Id, stationQue.StationId);
             var multiUpdate = Builders<GasStation>.Update.Push(u => u.OnTheWayQue, stationQue);
@@ -34,23 +36,48 @@ namespace Oktane.Services
         }
 
 
-        public async Task CreateQue(StationQue stationQue)
+        public async Task<StationQue> CreateQue(string queueId)
         {
 
-            //Task<GasStation> gas =  _gasStation.Find(x => x.Id == stationQue.UserId).FirstOrDefaultAsync();
+            GasStation gasStation = FilterStationByOnTheWayQueueId(queueId);
+            StationQue queue = gasStation.OnTheWayQue[gasStation.OnTheWayQue.Count - 1];
+            var StationObject = Builders<GasStation>.Filter.ElemMatch(t => t.OnTheWayQue,queue => queue.Id == queueId);
+            var pull = Builders<GasStation>.Update.PullFilter(t => t.OnTheWayQue, queue => queue.Id == queueId);
+            var result = await _gasStation.UpdateManyAsync(StationObject, pull);
 
-            var filter = Builders<GasStation>.Filter.Where(g => g.Id == stationQue.StationId);
-            var update = Builders<GasStation>.Update.PullFilter(ym => ym.OnTheWayQue, Builders<StationQue>.Filter.Where(nm => nm.UserId == stationQue.UserId));
-            await _gasStation.UpdateOneAsync(filter, update);
+            queue.ArrivalDateTime = DateTime.Now.ToString();
+            queue.Id = ObjectId.GenerateNewId().ToString();
 
-            stationQue.Id =
+            var filter2 = Builders<GasStation>.Filter.Eq(a => a.Id, gasStation.Id);
+            var multiUpdate = Builders<GasStation>.Update.Push(u => u.Que, queue);
+            await _gasStation.UpdateOneAsync(filter2, multiUpdate);
 
-            stationQue.ArrivalDateTime = DateTime.Now.ToString();
-            var filter2 = Builders<GasStation>.Filter.Eq(a =>
-            a.Id, stationQue.StationId);
-            var multiUpdate = Builders<GasStation>.Update.Push(u => u.Que, stationQue);
-            await _gasStation.UpdateOneAsync(filter, multiUpdate);
+            GasStation newStation = FilterStationByQueueId(queue.Id);
 
+            return gasStation.Que[0];
+
+        }
+
+        public GasStation FilterStationByOnTheWayQueueId(string queueId)
+        {
+            var station = Builders<GasStation>.Filter
+                .ElemMatch(t => t.OnTheWayQue,
+                queue => queue.Id == queueId);
+
+            var res = _gasStation.Find(station).ToList();
+
+            return res[0];
+        }
+
+        public GasStation FilterStationByQueueId(string queueId)
+        {
+            var station = Builders<GasStation>.Filter
+                .ElemMatch(t => t.Que,
+                queue => queue.Id == queueId);
+
+            var res = _gasStation.Find(station).ToList();
+
+            return res[0];
         }
 
 
