@@ -13,6 +13,7 @@ namespace Oktane.Controllers
         private readonly InventoryService _inventoryService;
 
 
+        //service injection
         public StationQueController(StationQueService queueService, GasStationService gasStationService, InventoryService inventoryService)
         {
             _gasStationService = gasStationService;
@@ -21,7 +22,17 @@ namespace Oktane.Controllers
         }
 
 
+        //create on the way que API
+        [HttpPost]
+        [Route("/save/on-the-way-que")]
+        public async Task<IActionResult> SaveQueOfONtheWay(StationQue stationQue)
+        {
+            await _queueService.CreateOntheWayQue(stationQue);
 
+            return CreatedAtAction(nameof(_gasStationService.GetAsync), new { id = stationQue.Id }, stationQue);
+        }
+
+        //create  arrival Que API
         [HttpPost]
         [Route("/save/que")]
         public async Task<JsonResult> SaveQue(string queueId)
@@ -30,29 +41,30 @@ namespace Oktane.Controllers
             return new JsonResult(res);
         }
 
+        //create history Que API
         [HttpPost]
         [Route("/save/historyque")]
         public async Task<JsonResult> SaveHistoryQue(string queueId, string type, bool status)
         {
-            var res = await _queueService.SaveHistoryQue(queueId, type, status);
+            GasStation res = await _queueService.SaveHistoryQue(queueId, type, status);
             var current = await _inventoryService.currentFuelAmount(res.Id, type);
             if (status)
             {
                 _inventoryService.UpdateFuelAmountWhenQueueUpdated(res.Id, current, type);
             }
-            return new JsonResult(res.Que[0]);
+
+            var result = _gasStationService.GetAsync(res.Id);
+
+            return new JsonResult(result);
         }
-
-
-        [HttpPost]
-        [Route("/save/on-the-way-que")]
-        public async Task<IActionResult> SaveQueOfONtheWay(StationQue stationQue)
+        //get Que status  API
+        [HttpGet]
+        [Route("/GetQueueStatus")]
+        public async Task<JsonResult> GetQueueStatus(string stationId, string type)
         {
-            await _gasStationService.CreateOntheWayQue(stationQue);
-
-            return CreatedAtAction(nameof(_gasStationService.GetAsync), new { id = stationQue.Id }, stationQue);
+            var res = await _queueService.GetQueueStatus(stationId, type);
+            return res;
         }
-
 
     }
 }

@@ -8,16 +8,19 @@ namespace Oktane.Controllers
     [Route("api/[controller]")]
     public class GasStationController : ControllerBase
     {
+     
         private readonly GasStationService _gasStationService;
         private readonly StationQueService _queueService;
 
-
+        //service class injection
         public GasStationController(GasStationService gasStationService, StationQueService queueService)
         {
             _gasStationService = gasStationService;
             _queueService = queueService;
         }
 
+
+        //create fule station API
 
         [HttpPost]
         public async Task<IActionResult> Post(GasStation gasStation)
@@ -26,7 +29,7 @@ namespace Oktane.Controllers
 
             return CreatedAtAction(nameof(Get), new { id = gasStation.Id }, gasStation);
         }
-
+        //get all fule station API
         [HttpGet]
         public async Task<List<GasStation>> Get() =>
         await _gasStationService.GetAsync();
@@ -43,7 +46,7 @@ namespace Oktane.Controllers
 
             return gas;
         }
-
+        //delete fule station API
         [HttpDelete("{id:length(24)}")]
         public async Task<IActionResult> Delete(string id)
         {
@@ -56,7 +59,7 @@ namespace Oktane.Controllers
             await _gasStationService.RemoveAsync(id);
             return NoContent();
         }
-
+        //update fule station API
         [HttpPut("{id:length(24)}")]
         public async Task<IActionResult> Update(string id, GasStation gasStation)
         {
@@ -73,54 +76,7 @@ namespace Oktane.Controllers
 
             return NoContent();
         }
-
-        //[HttpPost]
-        //[Route("/save/on-the-way-que")]
-        //public async Task<IActionResult> SaveQueOfONtheWay(StationQue stationQue)
-        // {
-        //    await _gasStationService.CreateOntheWayQue(stationQue);
-
-        //    return CreatedAtAction(nameof(Get), new { id = stationQue.Id }, stationQue);
-        // }
-
-
-        //[HttpPost]
-        //[Route("/save/que")]
-        //public async Task<JsonResult> SaveQue(string queueId)
-        //{
-        //    var res = await _queueService.CreateQue(queueId);
-        //    return new JsonResult(res);
-        //}
-
-        //[HttpPost]
-        //[Route("/save/historyque")]
-        //public async Task<JsonResult> SaveHistoryQue(string queueId, string type, bool status)
-        //{
-        //    var res = await _queueService.SaveHistoryQue(queueId, type, status);
-        //    var current = await _gasStationService.currentFuelAmount(res.Id, type);
-        //    if (status)
-        //    {
-        //        _queueService.UpdateFuelAmountWhenQueueUpdated(res.Id, current, type);
-        //    }
-        //    return new JsonResult(res.Que[0]);
-        //}
-
-        //[HttpPost]
-        //[Route("/save/fuel")]
-        //public async Task<JsonResult> SaveFuel(Inventory inventory)
-        //{
-        //    var res = await _gasStationService.SaveFuel(inventory);
-        //    return new JsonResult(res);
-        //}
-
-        [HttpGet]
-        [Route("/GetQueueStatus")]
-        public async Task<JsonResult> GetQueueStatus(string stationId, string type)
-        {
-            var res = await _gasStationService.GetQueueStatus(stationId, type);
-            return res;
-        }
-
+        //get fule station By owner API
         [HttpGet]
         [Route("/GetStationByUserId")]
         public async Task<JsonResult> GetStationByUserId(string userId)
@@ -128,6 +84,10 @@ namespace Oktane.Controllers
             var res = await _gasStationService.GetStationByUserId(userId);
             return res;
         }
+
+       
+
+       
 
     }
 

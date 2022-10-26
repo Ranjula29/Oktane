@@ -10,9 +10,11 @@ namespace Oktane.Services
     public class StationQueService
     {
         private readonly IMongoCollection<GasStation> _stationQue;
+        private readonly GasStationService _gasStationService;
+        private readonly InventoryService _inventoryService;
 
         public StationQueService(
-        IOptions<DataBaseSetting> databaseSettings)
+        IOptions<DataBaseSetting> databaseSettings, GasStationService gasStationService, InventoryService inventoryService)
         {
             var mongoClient = new MongoClient(
                 databaseSettings.Value.ConnectionString);
@@ -22,9 +24,11 @@ namespace Oktane.Services
 
             _stationQue = mongoDatabase.GetCollection<GasStation>(
                 databaseSettings.Value.CollectionName);
+
+            _gasStationService = gasStationService;
+
+             _inventoryService = inventoryService;
         }
-
-
 
         public async Task CreateOntheWayQue(StationQue stationQue)
         {
@@ -36,14 +40,12 @@ namespace Oktane.Services
             await _stationQue.UpdateOneAsync(filter, multiUpdate);
 
         }
-
-
         public async Task<StationQue> CreateQue(string queueId)
         {
 
             GasStation gasStation = FilterStationByOnTheWayQueueId(queueId);
-            StationQue queue = gasStation.OnTheWayQue[gasStation.OnTheWayQue.Count - 1];
-            var StationObject = Builders<GasStation>.Filter.ElemMatch(t => t.OnTheWayQue,queue => queue.Id == queueId);
+            StationQue? queue = gasStation.OnTheWayQue.Find(x => x.Id == queueId);
+            var StationObject = Builders<GasStation>.Filter.ElemMatch(t => t.OnTheWayQue, queue => queue.Id == queueId);
             var pull = Builders<GasStation>.Update.PullFilter(t => t.OnTheWayQue, queue => queue.Id == queueId);
             var result = await _stationQue.UpdateManyAsync(StationObject, pull);
 
@@ -54,16 +56,16 @@ namespace Oktane.Services
             var multiUpdate = Builders<GasStation>.Update.Push(u => u.Que, queue);
             await _stationQue.UpdateOneAsync(filter2, multiUpdate);
 
-            GasStation newStation = FilterStationByQueueId(queue.Id);
+            GasStation newStation = _gasStationService.FilterStationByQueueId(queue.Id);
 
-            return gasStation.Que[0];
+            return newStation.Que[0];
 
         }
 
-        public async Task<GasStation> SaveHistoryQue(string queueId,string type, bool status)
+        public async Task<GasStation> SaveHistoryQue(string queueId, string type, bool status)
         {
-            GasStation gasStation = FilterStationByQueueId(queueId);
-            StationQue queue = gasStation.Que[gasStation.Que.Count - 1];
+            GasStation gasStation = _gasStationService.FilterStationByQueueId(queueId);
+            StationQue? queue = gasStation.Que.Find(x => x.Id == queueId);
             var StationObject = Builders<GasStation>.Filter.ElemMatch(t => t.Que, queue => queue.Id == queueId);
             var pull = Builders<GasStation>.Update.PullFilter(t => t.Que, queue => queue.Id == queueId);
             var result = await _stationQue.UpdateManyAsync(StationObject, pull);
@@ -78,9 +80,8 @@ namespace Oktane.Services
                 await _stationQue.UpdateOneAsync(filter2, multiUpdate);
             }
 
-            GasStation newStation = FilterStationByQueueId(queue.Id);
 
-            return newStation;
+            return gasStation;
         }
 
         public GasStation FilterStationByOnTheWayQueueId(string queueId)
@@ -94,41 +95,32 @@ namespace Oktane.Services
             return res[0];
         }
 
-        public GasStation FilterStationByQueueId(string queueId)
+
+        public async Task<JsonResult> GetQueueStatus(string stationId, string type)
         {
-            var station = Builders<GasStation>.Filter
-                .ElemMatch(t => t.Que,
-                queue => queue.Id == queueId);
+            var res = await _gasStationService.GetAsync(stationId);
+            int[] results = new int[2];
+            if (type == "Diesel")
+            {
 
-            var res = _stationQue.Find(station).ToList();
+                var numberOfVehicles = res.TotalDiesel / 20;
+                var quantity = res.TotalDiesel;
+                results[0] = numberOfVehicles;
+                results[1] = quantity;
 
-            return res[0];
+                return new JsonResult(results);
+
+            }
+            else
+            {
+                var numberOfVehicles = res.TotalPetrol / 20;
+                var quantity = res.TotalPetrol;
+                results[0] = numberOfVehicles;
+                results[1] = quantity;
+
+                return new JsonResult(numberOfVehicles);
+            }
         }
-
-        //public async void UpdateFuelAmountWhenQueueUpdated(string stationId,int fuelAmount, string type)
-        //{
-        //    GasStation gasStation = new GasStation();
-        //    var GasStationFilter = Builders<GasStation>.Filter.Eq(a => a.Id, stationId);
-
-
-        //    if (type == "Diesel")
-        //    {
-        //        gasStation.TotalDiesel = (fuelAmount - 20);
-        //        var updateDefinition = Builders<GasStation>.Update
-        //            .Set(u => u.TotalDiesel, gasStation.TotalDiesel);
-        //        var updatedResult = await _stationQue
-        //            .UpdateOneAsync(GasStationFilter, updateDefinition);
-        //    }
-        //    else
-        //    {
-        //        gasStation.TotalPetrol = (fuelAmount - 20);
-        //        var updateDefinition = Builders<GasStation>.Update
-        //            .Set(u => u.TotalPetrol, gasStation.TotalPetrol);
-        //        var updatedResult = await _stationQue
-        //            .UpdateOneAsync(GasStationFilter, updateDefinition);
-        //    }
-        //}
-
 
     }
 }

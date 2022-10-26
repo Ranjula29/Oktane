@@ -10,13 +10,14 @@ namespace Oktane.Controllers
     {
         private readonly InventoryService _inventoryService;
 
+        //service injection
         public InventoryController(InventoryService inventoryService)
         {
             _inventoryService = inventoryService;
         }
 
 
-
+        //save Fule stock API
         [HttpPost]
         [Route("/save/fuel")]
         public async Task<JsonResult> SaveFuel(Inventory inventory)

@@ -11,6 +11,7 @@ namespace Oktane.Services
 
         private readonly IMongoCollection<GasStation> _inventory;
 
+        //create database connection 
         public InventoryService(
         IOptions<DataBaseSetting> databaseSettings)
         {
@@ -74,7 +75,7 @@ namespace Oktane.Services
 
             if (inventory.FuleType == "Petrol")
             {
-                gasStation.TotalDiesel = amount + inventory.Stock;
+                gasStation.TotalPetrol = amount + inventory.Stock;
                 var update = Builders<GasStation>.Update.Set(u => u.TotalPetrol, gasStation.TotalPetrol);
                 var updatedResult = await _inventory.UpdateOneAsync(gasStationFilter, update);
             }
