@@ -42,7 +42,7 @@ namespace Oktane.Services
         {
 
             GasStation gasStation = FilterStationByOnTheWayQueueId(queueId);
-            StationQue queue = gasStation.OnTheWayQue[gasStation.OnTheWayQue.Count - 1];
+            StationQue? queue = gasStation.OnTheWayQue.Find(x => x.Id == queueId);
             var StationObject = Builders<GasStation>.Filter.ElemMatch(t => t.OnTheWayQue,queue => queue.Id == queueId);
             var pull = Builders<GasStation>.Update.PullFilter(t => t.OnTheWayQue, queue => queue.Id == queueId);
             var result = await _gasStation.UpdateManyAsync(StationObject, pull);
@@ -56,14 +56,16 @@ namespace Oktane.Services
 
             GasStation newStation = FilterStationByQueueId(queue.Id);
 
-            return gasStation.Que[0];
+            return newStation.Que[0];
 
         }
 
         public async Task<GasStation> SaveHistoryQue(string queueId,string type, bool status)
         {
             GasStation gasStation = FilterStationByQueueId(queueId);
-            StationQue queue = gasStation.Que[gasStation.Que.Count - 1];
+            StationQue? queue = gasStation.Que.Find(x => x.Id == queueId);
+
+            //StationQue queue = gasStation.Que[gasStation.Que.Count - 1];
             var StationObject = Builders<GasStation>.Filter.ElemMatch(t => t.Que, queue => queue.Id == queueId);
             var pull = Builders<GasStation>.Update.PullFilter(t => t.Que, queue => queue.Id == queueId);
             var result = await _gasStation.UpdateManyAsync(StationObject, pull);
@@ -78,9 +80,8 @@ namespace Oktane.Services
                 await _gasStation.UpdateOneAsync(filter2, multiUpdate);
             }
 
-            GasStation newStation = FilterStationByQueueId(queue.Id);
 
-            return newStation;
+            return gasStation;
         }
 
         public GasStation FilterStationByOnTheWayQueueId(string queueId)

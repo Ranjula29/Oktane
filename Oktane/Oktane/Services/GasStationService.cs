@@ -93,7 +93,7 @@ namespace Oktane.Services
 
             if (inventory.FuleType == "Petrol")
             {
-                gasStation.TotalDiesel = amount + inventory.Stock;
+                gasStation.TotalPetrol = amount + inventory.Stock;
                 var update = Builders<GasStation>.Update.Set(u => u.TotalPetrol, gasStation.TotalPetrol);
                 var updatedResult = await _gasStation.UpdateOneAsync(gasStationFilter, update);
             }
