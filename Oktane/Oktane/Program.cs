@@ -13,6 +13,7 @@ try
 
 builder.Services.AddSingleton<GasStationService>();
 builder.Services.AddSingleton<StationQueService>();
+builder.Services.AddSingleton<InventoryService>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(

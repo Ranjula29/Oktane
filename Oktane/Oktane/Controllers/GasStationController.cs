@@ -69,49 +69,49 @@ namespace Oktane.Controllers
 
             gasStation.Id = gas.Id;
 
-            await _gasStationService.UpdateAsync(id, gas);
+            await _gasStationService.UpdateAsync(id, gasStation);
 
             return NoContent();
         }
 
-        [HttpPost]
-        [Route("/save/on-the-way-que")]
-        public async Task<IActionResult> SaveQueOfONtheWay(StationQue stationQue)
-         {
-            await _gasStationService.CreateOntheWayQue(stationQue);
+        //[HttpPost]
+        //[Route("/save/on-the-way-que")]
+        //public async Task<IActionResult> SaveQueOfONtheWay(StationQue stationQue)
+        // {
+        //    await _gasStationService.CreateOntheWayQue(stationQue);
 
-            return CreatedAtAction(nameof(Get), new { id = stationQue.Id }, stationQue);
-         }
+        //    return CreatedAtAction(nameof(Get), new { id = stationQue.Id }, stationQue);
+        // }
 
 
-        [HttpPost]
-        [Route("/save/que")]
-        public async Task<JsonResult> SaveQue(string queueId)
-        {
-            var res = await _queueService.CreateQue(queueId);
-            return new JsonResult(res);
-        }
+        //[HttpPost]
+        //[Route("/save/que")]
+        //public async Task<JsonResult> SaveQue(string queueId)
+        //{
+        //    var res = await _queueService.CreateQue(queueId);
+        //    return new JsonResult(res);
+        //}
 
-        [HttpPost]
-        [Route("/save/historyque")]
-        public async Task<JsonResult> SaveHistoryQue(string queueId, string type, bool status)
-        {
-            var res = await _queueService.SaveHistoryQue(queueId, type, status);
-            var current = await _gasStationService.currentFuelAmount(res.Id, type);
-            if (status)
-            {
-                _queueService.UpdateFuelAmountWhenQueueUpdated(res.Id, current, type);
-            }
-            return new JsonResult(res.Que[0]);
-        }
+        //[HttpPost]
+        //[Route("/save/historyque")]
+        //public async Task<JsonResult> SaveHistoryQue(string queueId, string type, bool status)
+        //{
+        //    var res = await _queueService.SaveHistoryQue(queueId, type, status);
+        //    var current = await _gasStationService.currentFuelAmount(res.Id, type);
+        //    if (status)
+        //    {
+        //        _queueService.UpdateFuelAmountWhenQueueUpdated(res.Id, current, type);
+        //    }
+        //    return new JsonResult(res.Que[0]);
+        //}
 
-        [HttpPost]
-        [Route("/save/fuel")]
-        public async Task<JsonResult> SaveFuel(Inventory inventory)
-        {
-            var res = await _gasStationService.SaveFuel(inventory);
-            return new JsonResult(res);
-        }
+        //[HttpPost]
+        //[Route("/save/fuel")]
+        //public async Task<JsonResult> SaveFuel(Inventory inventory)
+        //{
+        //    var res = await _gasStationService.SaveFuel(inventory);
+        //    return new JsonResult(res);
+        //}
 
         [HttpGet]
         [Route("/GetQueueStatus")]

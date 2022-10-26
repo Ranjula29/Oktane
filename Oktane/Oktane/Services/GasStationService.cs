@@ -71,46 +71,46 @@ namespace Oktane.Services
 
         }
 
-        public async Task<JsonResult> SaveFuel(Inventory inventory)
-        {
-            inventory.Id = ObjectId.GenerateNewId().ToString();
-            var Station = Builders<GasStation>.Filter.Eq(a => a.Id, inventory.StationId);
-            var Update = Builders<GasStation>.Update
-                .Push(u => u.Inventory, inventory);
-            var pushNotificationsResult = await _gasStation.UpdateOneAsync(Station, Update);
-            updateFuelAmount(inventory);
-            var results = _gasStation.Find(i => i.Id == inventory.StationId).ToList();
+        //public async Task<JsonResult> SaveFuel(Inventory inventory)
+        //{
+        //    inventory.Id = ObjectId.GenerateNewId().ToString();
+        //    var Station = Builders<GasStation>.Filter.Eq(a => a.Id, inventory.StationId);
+        //    var Update = Builders<GasStation>.Update
+        //        .Push(u => u.Inventory, inventory);
+        //    var pushNotificationsResult = await _gasStation.UpdateOneAsync(Station, Update);
+        //    updateFuelAmount(inventory);
+        //    var results = _gasStation.Find(i => i.Id == inventory.StationId).ToList();
 
-            return new JsonResult(results[0]);
-        }
+        //    return new JsonResult(results[0]);
+        //}
 
 
-        public async void updateFuelAmount(Inventory inventory)
-        {
-            GasStation gasStation = new GasStation();
-            var gasStationFilter = Builders<GasStation>.Filter.Eq(a => a.Id, inventory.StationId);
-            var amount = await currentFuelAmount(inventory.StationId, inventory.FuleType);
+        //public async void updateFuelAmount(Inventory inventory)
+        //{
+        //    GasStation gasStation = new GasStation();
+        //    var gasStationFilter = Builders<GasStation>.Filter.Eq(a => a.Id, inventory.StationId);
+        //    var amount = await currentFuelAmount(inventory.StationId, inventory.FuleType);
 
-            if (inventory.FuleType == "Petrol")
-            {
-                gasStation.TotalDiesel = amount + inventory.Stock;
-                var update = Builders<GasStation>.Update.Set(u => u.TotalPetrol, gasStation.TotalPetrol);
-                var updatedResult = await _gasStation.UpdateOneAsync(gasStationFilter, update);
-            }
-            else
-            {
-                gasStation.TotalDiesel = amount + inventory.Stock;
-                var update = Builders<GasStation>.Update.Set(u => u.TotalDiesel, gasStation.TotalDiesel);
-                var updatedResult = await _gasStation.UpdateOneAsync(gasStationFilter, update);
+        //    if (inventory.FuleType == "Petrol")
+        //    {
+        //        gasStation.TotalDiesel = amount + inventory.Stock;
+        //        var update = Builders<GasStation>.Update.Set(u => u.TotalPetrol, gasStation.TotalPetrol);
+        //        var updatedResult = await _gasStation.UpdateOneAsync(gasStationFilter, update);
+        //    }
+        //    else
+        //    {
+        //        gasStation.TotalDiesel = amount + inventory.Stock;
+        //        var update = Builders<GasStation>.Update.Set(u => u.TotalDiesel, gasStation.TotalDiesel);
+        //        var updatedResult = await _gasStation.UpdateOneAsync(gasStationFilter, update);
 
-            }
-        }
+        //    }
+        //}
 
-        public async Task<int> currentFuelAmount(string stationId, string type)
-        {
-            var res = await _gasStation.FindAsync<GasStation>(c => c.Id == stationId);
-            return (type == "Diesel") ? res.ToList()[0].TotalDiesel : res.ToList()[0].TotalPetrol;
-        }
+        //public async Task<int> currentFuelAmount(string stationId, string type)
+        //{
+        //    var res = await _gasStation.FindAsync<GasStation>(c => c.Id == stationId);
+        //    return (type == "Diesel") ? res.ToList()[0].TotalDiesel : res.ToList()[0].TotalPetrol;
+        //}
 
 
         public async Task<JsonResult> GetQueueStatus(string stationId, string type)

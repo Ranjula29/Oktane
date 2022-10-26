@@ -882,19 +882,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\isira\\.nuget\\packages\\": {}
+    "C:\\Users\\Ranjula\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\isira\\Desktop\\Oktane\\Oktane\\Oktane\\Oktane.csproj",
+      "projectUniqueName": "C:\\Users\\Ranjula\\Desktop\\Oktane_app\\Oktane\\Oktane\\Oktane\\Oktane.csproj",
       "projectName": "Oktane",
-      "projectPath": "C:\\Users\\isira\\Desktop\\Oktane\\Oktane\\Oktane\\Oktane.csproj",
-      "packagesPath": "C:\\Users\\isira\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\isira\\Desktop\\Oktane\\Oktane\\Oktane\\obj\\",
+      "projectPath": "C:\\Users\\Ranjula\\Desktop\\Oktane_app\\Oktane\\Oktane\\Oktane\\Oktane.csproj",
+      "packagesPath": "C:\\Users\\Ranjula\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Ranjula\\Desktop\\Oktane_app\\Oktane\\Oktane\\Oktane\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\isira\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Ranjula\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
