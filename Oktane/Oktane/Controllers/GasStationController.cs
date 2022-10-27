@@ -78,16 +78,16 @@ namespace Oktane.Controllers
         [HttpPost]
         [Route("/save/arrival-que")]
         public async Task<IActionResult> SaveQueOfArrival(StationQue stationQue)
-         {
+        {
             await _queueService.CreateArrivalQue(stationQue);
 
             return CreatedAtAction(nameof(Get), new { id = stationQue.Id }, stationQue);
-         }
+        }
 
 
         [HttpPost]
         [Route("/save/historyque")]
-        public async Task<GasStation> SaveHistoryQue(string queueId, string type ,bool status)
+        public async Task<GasStation> SaveHistoryQue(string queueId, string type, bool status)
         {
             GasStation res = await _queueService.SaveHistoryQue(queueId, status);
             var current = await _gasStationService.currentFuelAmount(res.Id, type);
@@ -108,6 +108,29 @@ namespace Oktane.Controllers
             var res = await _gasStationService.SaveFuel(inventory);
             return new JsonResult(res);
         }
+
+
+        [HttpPost]
+        [Route("/change-status/station")]
+        public async Task<IActionResult> ChangeStatusOfStation(string stationId, bool status)
+        {
+            var gas = await _gasStationService.GetAsync(stationId);
+
+            if (gas is null)
+            {
+                return NotFound();
+            }
+
+   
+
+            await _gasStationService.ChangeStatus(stationId,status, gas);
+
+            return NoContent();
+        }
+  
+    
+
+
 
         [HttpGet]
         [Route("/GetQueueStatus")]
