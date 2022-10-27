@@ -49,7 +49,7 @@ namespace Oktane.Services
 
             if (status)
             {
-                queue.ArrivalDateTime = DateTime.Now.ToString();
+                queue.DepartDateTime = DateTime.Now.ToString();
                 queue.Id = ObjectId.GenerateNewId().ToString();
 
                 var filter2 = Builders<GasStation>.Filter.Eq(a => a.Id, gasStation.Id);
