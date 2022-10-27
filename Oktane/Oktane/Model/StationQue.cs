@@ -16,7 +16,6 @@ namespace Oktane.Model
         public string? StationId { get; set; }
         public string UserId { get; set; } = String.Empty;
         public string FuleType { get; set; } = String.Empty;
-        public string OnTheWayDateTime { get; set; } = String.Empty;
         public string ArrivalDateTime { get; set; } = String.Empty;
         public string DepartDateTime { get; set; } = String.Empty;
         public bool IsDepartAfterPump { get; set; } = false;

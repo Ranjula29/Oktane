@@ -76,28 +76,20 @@ namespace Oktane.Controllers
         }
 
         [HttpPost]
-        [Route("/save/on-the-way-que")]
-        public async Task<IActionResult> SaveQueOfONtheWay(StationQue stationQue)
+        [Route("/save/arrival-que")]
+        public async Task<IActionResult> SaveQueOfArrival(StationQue stationQue)
          {
-            await _gasStationService.CreateOntheWayQue(stationQue);
+            await _queueService.CreateArrivalQue(stationQue);
 
             return CreatedAtAction(nameof(Get), new { id = stationQue.Id }, stationQue);
          }
 
 
         [HttpPost]
-        [Route("/save/que")]
-        public async Task<JsonResult> SaveQue(string queueId)
-        {
-            var res = await _queueService.CreateQue(queueId);
-            return new JsonResult(res);
-        }
-
-        [HttpPost]
         [Route("/save/historyque")]
-        public async Task<JsonResult> SaveHistoryQue(string queueId, string type, bool status)
+        public async Task<JsonResult> SaveHistoryQue(string queueId, string type ,bool status)
         {
-            GasStation res = await _queueService.SaveHistoryQue(queueId, type, status);
+            GasStation res = await _queueService.SaveHistoryQue(queueId, status);
             var current = await _gasStationService.currentFuelAmount(res.Id, type);
             if (status)
             {
@@ -119,9 +111,9 @@ namespace Oktane.Controllers
 
         [HttpGet]
         [Route("/GetQueueStatus")]
-        public async Task<FuleDetails> GetQueueStatus(string stationId, string type)
+        public async Task<FuleDetails> GetQueueStatus(string stationId, string type,string vehicleType)
         {
-            var res = await _gasStationService.GetQueueDetails(stationId, type);
+            var res = await _gasStationService.GetQueueDetails(stationId,type, vehicleType);
             return res;
         }
 
@@ -135,9 +127,9 @@ namespace Oktane.Controllers
 
         [HttpGet]
         [Route("/fule-Details")]
-        public async Task<FuleDetails> Getq(string stationId, string type)
+        public async Task<FuleDetails> Getq(string stationId, string type,string vehicleType)
         {
-            var res = await _gasStationService.GetQueueDetails(stationId, type);
+            var res = await _gasStationService.GetQueueDetails(stationId, type, vehicleType);
             return res;
         }
 
