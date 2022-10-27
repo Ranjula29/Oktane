@@ -112,20 +112,21 @@ namespace Oktane.Controllers
 
         [HttpPost]
         [Route("/change-status/station")]
-        public async Task<IActionResult> ChangeStatusOfStation(string stationId, bool status)
+        public async Task<GasStation?> ChangeStatusOfStation(string stationId, bool status)
         {
             var gas = await _gasStationService.GetAsync(stationId);
 
             if (gas is null)
             {
-                return NotFound();
+                return null;
             }
-
-   
 
             await _gasStationService.ChangeStatus(stationId,status, gas);
 
-            return NoContent();
+            GasStation? gasStation = await _gasStationService.GetAsync(stationId);
+
+            return gasStation;
+
         }
   
     
