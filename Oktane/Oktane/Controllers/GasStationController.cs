@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Oktane.Model;
+using Oktane.Response;
 using Oktane.Services;
 
 namespace Oktane.Controllers
@@ -118,9 +119,9 @@ namespace Oktane.Controllers
 
         [HttpGet]
         [Route("/GetQueueStatus")]
-        public async Task<JsonResult> GetQueueStatus(string stationId, string type)
+        public async Task<FuleDetails> GetQueueStatus(string stationId, string type)
         {
-            var res = await _gasStationService.GetQueueStatus(stationId, type);
+            var res = await _gasStationService.GetQueueDetails(stationId, type);
             return res;
         }
 
@@ -129,6 +130,14 @@ namespace Oktane.Controllers
         public async Task<JsonResult> GetStationByUserId(string userId)
         {
             var res = await _gasStationService.GetStationByUserId(userId);
+            return res;
+        }
+
+        [HttpGet]
+        [Route("/fule-Details")]
+        public async Task<FuleDetails> Getq(string stationId, string type)
+        {
+            var res = await _gasStationService.GetQueueDetails(stationId, type);
             return res;
         }
 

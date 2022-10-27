@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Oktane.Model;
+using Oktane.Response;
 using System.Net;
 
 namespace Oktane.Services
@@ -113,26 +114,26 @@ namespace Oktane.Services
         }
 
 
-        public async Task<JsonResult> GetQueueStatus(string stationId, string type)
+        public async Task<FuleDetails> GetQueueDetails(string stationId, string type)
         {
+            FuleDetails fuleDetails = new FuleDetails();
             var res = await GetAsync(stationId);
             int[] results = new int[2];
             if (type == "Diesel") {
 
-                var numberOfVehicles = res.TotalDiesel/20;
-                var quantity = res.TotalDiesel;
-                results[0] = numberOfVehicles;
-                results[1] = quantity;
+        
+                fuleDetails.Quantity  = res.TotalDiesel;
+                fuleDetails.Quecount = res.Que.Count;
+                fuleDetails.VehicaleCount = (fuleDetails.Quantity - (fuleDetails.Quecount * 20)) / 20;
 
-                return new JsonResult(results);
+                return fuleDetails;
 
             } else {
-                var numberOfVehicles = res.TotalPetrol/20;
-                var quantity = res.TotalPetrol;
-                results[0] = numberOfVehicles;
-                results[1] = quantity;
+                fuleDetails.Quantity = res.TotalPetrol;
+                fuleDetails.Quecount = res.Que.Count;
+                fuleDetails.VehicaleCount = (fuleDetails.Quantity - (fuleDetails.Quecount * 20)) / 20;
 
-                return new JsonResult(numberOfVehicles);
+                return fuleDetails;
             }
         }
 
