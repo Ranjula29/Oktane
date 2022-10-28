@@ -30,8 +30,7 @@ namespace Oktane.Model
         public string CloseDateTime { get; set; } = String.Empty;
         [JsonPropertyName("Inventory")]
         public List<Inventory> Inventory { get; set; } = new List<Inventory>();
-        [JsonPropertyName("OnTheWayQue")]
-        public List<StationQue> OnTheWayQue { get; set; } = new List<StationQue>();
+
         [JsonPropertyName("Que")]
         public List<StationQue> Que { get; set; } = new List<StationQue>();
         [JsonPropertyName("HistoryQue")]

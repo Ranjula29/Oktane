@@ -85,9 +85,30 @@ namespace Oktane.Controllers
             return res;
         }
 
-       
 
-       
+        //change station status(open/close) API
+        [HttpPost]
+        [Route("/change-status/station")]
+        public async Task<GasStation?> ChangeStatusOfStation(string stationId, bool status)
+        {
+            var gas = await _gasStationService.GetAsync(stationId);
+
+            if (gas is null)
+            {
+                return null;
+            }
+
+            await _gasStationService.ChangeStatus(stationId, status, gas);
+
+            GasStation? gasStation = await _gasStationService.GetAsync(stationId);
+
+            return gasStation;
+
+        }
+
+
+
+
 
     }
 

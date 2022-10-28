@@ -62,6 +62,14 @@ namespace Oktane.Services
         }
 
 
+        internal async Task ChangeStatus(string stationId, bool status, GasStation gasStation)
+        {
+            gasStation.IsOpen = status;
+            await _gasStation.ReplaceOneAsync(x => x.Id == stationId, gasStation);
+
+        }
+
+
     }
 
 

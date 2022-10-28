@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Oktane.Model;
+using Oktane.Response;
 using static MongoDB.Driver.WriteConcern;
 
 namespace Oktane.Services
@@ -30,38 +31,18 @@ namespace Oktane.Services
              _inventoryService = inventoryService;
         }
 
-        public async Task CreateOntheWayQue(StationQue stationQue)
+        public async Task CreateArrivalQue(StationQue stationQue)
         {
-            stationQue.OnTheWayDateTime = DateTime.Now.ToString();
+            stationQue.ArrivalDateTime = DateTime.Now.ToString();
             stationQue.Id = ObjectId.GenerateNewId().ToString();
             var filter = Builders<GasStation>.Filter.Eq(a =>
             a.Id, stationQue.StationId);
-            var multiUpdate = Builders<GasStation>.Update.Push(u => u.OnTheWayQue, stationQue);
+            var multiUpdate = Builders<GasStation>.Update.Push(u => u.Que, stationQue);
             await _stationQue.UpdateOneAsync(filter, multiUpdate);
 
         }
-        public async Task<StationQue> CreateQue(string queueId)
-        {
-
-            GasStation gasStation = FilterStationByOnTheWayQueueId(queueId);
-            StationQue? queue = gasStation.OnTheWayQue.Find(x => x.Id == queueId);
-            var StationObject = Builders<GasStation>.Filter.ElemMatch(t => t.OnTheWayQue, queue => queue.Id == queueId);
-            var pull = Builders<GasStation>.Update.PullFilter(t => t.OnTheWayQue, queue => queue.Id == queueId);
-            var result = await _stationQue.UpdateManyAsync(StationObject, pull);
-
-            queue.ArrivalDateTime = DateTime.Now.ToString();
-            queue.Id = ObjectId.GenerateNewId().ToString();
-
-            var filter2 = Builders<GasStation>.Filter.Eq(a => a.Id, gasStation.Id);
-            var multiUpdate = Builders<GasStation>.Update.Push(u => u.Que, queue);
-            await _stationQue.UpdateOneAsync(filter2, multiUpdate);
-
-            GasStation newStation = _gasStationService.FilterStationByQueueId(queue.Id);
-
-            return newStation.Que[0];
-
-        }
-
+ 
+        
         public async Task<GasStation> SaveHistoryQue(string queueId, string type, bool status)
         {
             GasStation gasStation = _gasStationService.FilterStationByQueueId(queueId);
@@ -87,7 +68,7 @@ namespace Oktane.Services
         public GasStation FilterStationByOnTheWayQueueId(string queueId)
         {
             var station = Builders<GasStation>.Filter
-                .ElemMatch(t => t.OnTheWayQue,
+                .ElemMatch(t => t.Que,
                 queue => queue.Id == queueId);
 
             var res = _stationQue.Find(station).ToList();
@@ -119,6 +100,50 @@ namespace Oktane.Services
                 results[1] = quantity;
 
                 return new JsonResult(numberOfVehicles);
+            }
+        }
+
+
+        public async Task<FuleDetails> GetQueueDetails(string stationId, string type, string vehicleType)
+        {
+
+            List<StationQue> stationQues = new List<StationQue>();
+            FuleDetails fuleDetails = new FuleDetails();
+            var res = await _gasStationService.GetAsync(stationId);
+            if (type == "Diesel")
+            {
+                fuleDetails.Quantity = res.TotalDiesel;
+                foreach (StationQue que in res.Que)
+                {
+                    if (que.VehicleType == vehicleType)
+                    {
+                        stationQues.Add(que);
+                    }
+                }
+                fuleDetails.Quecount = stationQues.Count;
+                fuleDetails.VehicaleCount = (fuleDetails.Quantity - (fuleDetails.Quecount * 20)) / 20;
+                if (fuleDetails.VehicaleCount < 0)
+                {
+                    fuleDetails.VehicaleCount = 0;
+                }
+
+                return fuleDetails;
+
+            }
+            else
+            {
+                foreach (StationQue que in res.Que)
+                {
+                    if (que.VehicleType == vehicleType)
+                    {
+                        stationQues.Add(que);
+                    }
+                }
+                fuleDetails.Quantity = res.TotalPetrol;
+                fuleDetails.Quecount = stationQues.Count;
+                fuleDetails.VehicaleCount = (fuleDetails.Quantity - (fuleDetails.Quecount * 20)) / 20;
+
+                return fuleDetails;
             }
         }
 

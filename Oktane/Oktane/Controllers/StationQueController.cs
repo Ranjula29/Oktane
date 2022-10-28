@@ -22,25 +22,17 @@ namespace Oktane.Controllers
         }
 
 
-        //create on the way que API
+        //create Arrival  que API
         [HttpPost]
-        [Route("/save/on-the-way-que")]
-        public async Task<IActionResult> SaveQueOfONtheWay(StationQue stationQue)
+        [Route("/save/arrival-que")]
+        public async Task<IActionResult> SaveQueOfArrival(StationQue stationQue)
         {
-            await _queueService.CreateOntheWayQue(stationQue);
+            await _queueService.CreateArrivalQue(stationQue);
 
             return CreatedAtAction(nameof(_gasStationService.GetAsync), new { id = stationQue.Id }, stationQue);
         }
 
-        //create  arrival Que API
-        [HttpPost]
-        [Route("/save/que")]
-        public async Task<JsonResult> SaveQue(string queueId)
-        {
-            var res = await _queueService.CreateQue(queueId);
-            return new JsonResult(res);
-        }
-
+      
         //create history Que API
         [HttpPost]
         [Route("/save/historyque")]
